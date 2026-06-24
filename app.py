@@ -1,6 +1,6 @@
 from ollama import chat
 from db import get_connection
-from build_rag import build_rag
+from build_rag import build_rag, OllamaEmbeddingFunction
 
 from rag import (
     retrieve_context,
@@ -14,31 +14,19 @@ import chromadb
 # -----------------------------
 # RAG Initialization
 # -----------------------------
+client = chromadb.PersistentClient(path="./rag_db")
 
-client = chromadb.PersistentClient(
-    path="./rag_db"
-)
+ef = OllamaEmbeddingFunction()
 
 try:
-
-    collection = client.get_collection(
-        "schema"
-    )
-
+    collection = client.get_collection("schema", embedding_function=ef)
     data = collection.get()
-
     if len(data["ids"]) == 0:
-
         print("Building RAG...")
-
         build_rag()
-
 except:
-
     print("Creating RAG...")
-
     build_rag()
-
 
 # -----------------------------
 # PostgreSQL
@@ -184,7 +172,7 @@ User Request:
     )
 
     response = chat(
-        model="llama3.1:8b",
+        model="llama3.1:latest",
         messages=[
             {
                 "role": "user",

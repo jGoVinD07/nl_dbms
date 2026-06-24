@@ -1,12 +1,13 @@
 import chromadb
+from build_rag import OllamaEmbeddingFunction
 
-client = chromadb.PersistentClient(
-    path="./rag_db"
-)
+client = chromadb.PersistentClient(path="./rag_db")
 
-collection = client.get_collection(
-    "schema"
-)
+ef = OllamaEmbeddingFunction()
+
+collection = client.get_collection("schema", embedding_function=ef)
+
+
 
 
 def retrieve_context(question):
